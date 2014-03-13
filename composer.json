@@ -1,0 +1,11 @@
+{
+    "name": "bwc/component-js",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-0": { "": "src/" }
+    }, 
+    "require": {
+        "symfony/symfony": "~2.2"
+    }
+}

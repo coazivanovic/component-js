@@ -1,0 +1,6 @@
+parameters:
+#   bwc_component_js.example.class
+
+services:
+#   bwc_component_js.example:
+#       class: %bwc_component_js.example.class%
