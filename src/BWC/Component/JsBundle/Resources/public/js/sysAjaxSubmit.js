@@ -1,42 +1,51 @@
 $(function() {
 
-    BWC.Dispatcher.addListener('sys.ajaxSubmit', function(e) {
+    BWC.Dispatcher.addListener('sys.submit.ajax', function(e) {
         var ee = e;
         var $dom = BWC.Dispatcher.getDom(e);
-        var sysSubmitData = $dom.data('sysAjaxSubmit') || {};
+        var sysSubmitData = $dom.data('sysSubmitAjax') || $dom.data('sysSubmit') || {};
         var $form = null;
         if (sysSubmitData.form) {
             $form = $(sysSubmitData.form);
+        } else {
+            $form = $dom.closest('form');
         }
         if (!$form || !$form.length) {
-            $form = $dom.closest('form');
+            throw new SyntaxError('No form');
         }
         if ($form.length) {
             $form = $form.first();
-            var $parent = $form.parent();
-            var options = {};
-            if (sysSubmitData.options) {
-                options = sysSubmitData.options;
-            }
+            var options = sysSubmitData.options || {};
             if (!options.target) {
-                options.target = $parent;
+                options.target = $form.parent();
             }
-            options.success = function() {
-                BWC.Dispatcher.bind($parent.dom);
+            var $target = $(options.target);
+            options.success = function(response, statusText, jqXHR, jqForm) {
+                BWC.Dispatcher.bind($target.dom);
                 if (typeof($form.unblock) == "function") {
                     $form.unblock();
                 }
-                $form.trigger('submitted.sys.ajaxSubmit', {
-                    form: $form.dom,
+                $dom.trigger('submitted.bwc.sys.submit.ajax', {
+                    trigger: $dom,
+                    target: $target,
+                    form: jqForm,
                     originalEvent: ee
                 });
-                BWC.Dispatcher.dispatch('sys.ajaxSubmit.success', {
-                    dom: $form.dom,
+                jqForm.trigger('loaded.bwc.sys.submit.ajax', {
+                    trigger: $dom,
+                    target: $target,
+                    form: jqForm,
+                    originalEvent: ee
+                });
+                BWC.Dispatcher.dispatch('sys.submit.ajax.success', {
+                    dom: $dom.dom,
+                    target: $target,
+                    form: $form,
                     originalEvent: ee
                 });
             }
-            if (!options.dontBlock && typeof($form.block) == "function") {
-                $form.block();
+            if (!sysSubmitData.dontBlock && typeof($target.block) == "function") {
+                $target.block();
             }
             $form.ajaxSubmit(options);
         }
