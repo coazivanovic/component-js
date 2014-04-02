@@ -11,6 +11,14 @@ $(function() {
                 $(this).remove();
             });
 
+            $dom.trigger('shown.bwc.bs.modal', {
+                dom: $dom.dom,
+                result: result,
+                originalEvent: ee,
+                textStatus: null,
+                errorThrown: null
+            });
+
             BWC.Dispatcher.dispatch('bs.modal.shown', {
                 result: result,
                 originalEvent: ee,
@@ -28,7 +36,7 @@ $(function() {
             BWC.Dispatcher.dispatch('bs.modal.error', {
                 dom: $dom.dom,
                 result: result,
-                originalEvent: ee
+                originalEvent: ee,
                 textStatus: null,
                 errorThrown: null
             });
@@ -60,7 +68,7 @@ $(function() {
     BWC.Dispatcher.addListener('bs.modal', function(e) {
         var ee = e;
         var $dom = BWC.Dispatcher.getDom(e);
-        var bsModalData = $(dom).data('bsModal') || {};
+        var bsModalData = $dom.data('bsModal') || {};
         if (!bsModalData || !bsModalData.url) {
             bsModalData.url = $dom.data('url');
         }

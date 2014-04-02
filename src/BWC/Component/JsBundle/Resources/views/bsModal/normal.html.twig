@@ -1,0 +1,25 @@
+
+{% set titleID = random() %}
+
+<div class="modal fade" id="groupModal" role="dialog" aria-labeledby="x{{ titleID }}" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="x{{ titleID }}">{% block title %}Default title{% endblock title %}</h4>
+            </div>
+            <div class="modal-body">
+                {% block body %}
+                    ...
+                {% endblock %}
+            </div>
+            <div class="modal-footer">
+                {% block footer %}
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ "close"|trans }}</button>
+                <button type="button" class="btn btn-primary" data-id="save">{{ "save"|trans }}</button>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
