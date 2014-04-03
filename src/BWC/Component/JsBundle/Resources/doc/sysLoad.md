@@ -9,9 +9,10 @@ sys.load
 <button
     data-topic='{ "click": "sys.load" }'
     data-sys-load='[
-        { "target": "[data-id=\"target1\"]", "url": "/url/first" },
+        { "target": "[data-id=\"target1\"]", "url": "/url/first", dontBlock: true },
         { "target": "[data-id=\"target2\"]", "url": "/url/second" }
     ]'
+    data-buffer="10"
 >do it</button
 ```
 

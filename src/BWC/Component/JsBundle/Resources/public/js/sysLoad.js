@@ -68,26 +68,48 @@ $(function() {
         }
     }
 
-    BWC.Dispatcher.addListener('sys.load', function(e) {
-        var ee = e;
-        var $dom = BWC.Dispatcher.getDom(e);
+
+    function load(ee, $dom) {
         var sysLoadData = $dom.data('sysLoad');
+        var sysLoadDataData = $dom.data('sysLoadData');
         $(sysLoadData).each(function() {
             var targetData = this;
+
             if (!targetData.target) {
                 throw new SyntaxError('No target');
             }
             var $target = $(targetData.target);
-            var url = targetData.url;
-            if (!url) {
-                throw new SyntaxError('No url');
-            }
             if (!$target.length) {
                 throw new SyntaxError('No element '+targetData.target);
             }
 
-            var options = targetData.ajax;
+            var url = targetData.url;
+            if (!url) {
+                throw new SyntaxError('No url');
+            }
+
+            var options = targetData.ajax || {} ;
             options.url = targetData.url;
+            options.data = options.data || {};
+
+            if (sysLoadDataData) {
+                for (var name in sysLoadDataData) {
+                    options.data[name] = sysLoadDataData[name];
+                }
+            }
+
+            if (targetData.data) {
+                for (var name in targetData.data) {
+                    var spec = targetData.data[name];
+                    var method = spec[0];
+                    var selector = spec[1];
+                    $jq = $(selector);
+                    var m = $jq[method];
+                    var value = m.bind($jq)();
+                    options.data[name] = value;
+                }
+            }
+
             options.success = function(data, textStatus, jqXHR) {
                 ajaxSuccess(targetData, $target, ee, data, textStatus, jqXHR);
             }
@@ -103,7 +125,24 @@ $(function() {
             }
 
             $.ajax(options);
-        })
+        });
+    }
+
+    var timer;
+
+    BWC.Dispatcher.addListener('sys.load', function(e) {
+        var ee = e;
+        var $dom = BWC.Dispatcher.getDom(e);
+
+        var buffer = parseInt($dom.data('buffer'), 10);
+        if (isNaN(buffer) || buffer < 1) buffer = 200;
+
+        clearTimeout(timer);
+
+        timer = setTimeout(function() {
+            load(ee, $dom);
+        }, buffer);
+
     });
 
 });
