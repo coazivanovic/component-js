@@ -3,7 +3,7 @@ $(function() {
     BWC.Dispatcher.addListener('sys.toggleClass', function(e) {
         var ee = e;
         var $dom = BWC.Dispatcher.getDom(ee);
-        var sysToggleClassData = $dom.data('sysAddClass') || {};
+        var sysToggleClassData = $dom.data('sysToogleClass') || {};
 
         if (typeof sysToggleClassData.class == "undefined") {
             sysToggleClassData.class = $dom.data('class');

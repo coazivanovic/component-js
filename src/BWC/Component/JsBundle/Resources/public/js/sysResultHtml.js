@@ -24,6 +24,8 @@ $(function() {
         }
 
         $target.html(result.body);
+
+        BWC.Dispatcher.bind( $target );
     });
 
 });
