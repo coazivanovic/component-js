@@ -11,11 +11,14 @@ $(function() {
             throw new SyntaxError('sys.result.append: No target');
         }
         var $target = $(target);
-        if ($target.length) {
+        if ($target.length < 1) {
             throw new SyntaxError('sys.result.append: Target not found: '+target);
         }
 
-        var result = ee.result;
+        var result = ee.extra.result;
+        if (!result) {
+            throw new SyntaxError("sys.result.html: Missing result");
+        }
         if (typeof result.body == "undefined") {
             throw new SyntaxError("sys.result.append: No result body");
         }
