@@ -16,68 +16,81 @@ BWC.Dispatcher.getDom = function(e) {
     return $dom;
 }
 
-BWC.Dispatcher.Listener = function(id, callback, scope){
-    var listener = Object.create({
-        _id: null,
-        _topic: null,
-        _callback: null,
-        _scope: null,
-
-        init: function (id, callback, scope){
-            if(typeof id == 'undefined') throw new Error('Id of Listener must be defined');
-            this._setId(id);
-            this._callback = callback;
-            this._scope = scope;
-        },
-
-        _setId: function (id){
-            this._id = id;
-        }
-    });
-
-    listener.init(id, callback, scope);
-
-    this.setTopic = function(topic){
-        if(typeof topic == 'undefined') throw new Error('Topic must be defined');
-        listener._topic = topic;
-        return this;
-    };
-
-    this.getTopic = function(){
-        return listener._topic;
-    };
-
-    this.getId = function(){
-        return listener._id;
-    }
-
-    this.getScope = function(){
-        return listener._scope;
-    }
-
-    this.matchTopic = function(topic){
-        if(listener._topic == topic) return true;
-        if(topic.replace(/[^\[\]]/g, '') != ''){
-            var topic = topic.replace(/[\[\]]/g, '');
-            if(topic.match(listener._topic)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    this.getCallback = function(){
-        return listener._callback;
-    }
-
-    return this;
-};
+//BWC.Dispatcher.Listener = function(id, callback, scope){
+//    var listener = Object.create({
+//        _id: null,
+//        _topic: null,
+//        _callback: null,
+//        _scope: null,
+//
+//        init: function (id, callback, scope){
+//            if(typeof id == 'undefined') throw new Error('Id of Listener must be defined');
+//            this._setId(id);
+//            this._callback = callback;
+//            this._scope = scope;
+//        },
+//
+//        _setId: function (id){
+//            this._id = id;
+//        }
+//    });
+//
+//    listener.init(id, callback, scope);
+//
+//    this.setTopic = function(topic){
+//        if(typeof topic == 'undefined') throw new Error('Topic must be defined');
+//        listener._topic = topic;
+//        return this;
+//    };
+//
+//    this.getTopic = function(){
+//        return listener._topic;
+//    };
+//
+//    this.getId = function(){
+//        return listener._id;
+//    }
+//
+//    this.getScope = function(){
+//        return listener._scope;
+//    }
+//
+//    this.matchTopic = function(topic){
+//        if(listener._topic == topic) return true;
+//        if(topic.replace(/[^\[\]]/g, '') != ''){
+//            var topic = topic.replace(/[\[\]]/g, '');
+//            if(topic.match(listener._topic)){
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    this.getCallback = function(){
+//        return listener._callback;
+//    }
+//
+//    return this;
+//};
 
 BWC.Dispatcher.addListener  = function(topic, callback, scope) {
-
     var id = this.listeners.length;
-    var obj = new BWC.Dispatcher.Listener(id, callback, scope);
-    obj.setTopic(topic);
+    var obj = {
+        id: id,
+        callback: callback,
+        scope: scope,
+        topic: topic,
+        matchTopic: function(topic) {
+            if(this.topic == topic) return true;
+            if(topic.replace(/[^\[\]]/g, '') != '') {
+                var topic = topic.replace(/[\[\]]/g, '');
+                if(topic.match(this.topic)){
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
     var id = this.listeners.length;
     this.listeners[id] = obj;
 
@@ -87,9 +100,9 @@ BWC.Dispatcher.addListener  = function(topic, callback, scope) {
 BWC.Dispatcher.dispatch = function(topic, data) {
     if (typeof data != 'object'){
         data = {};
-        data.isPropagationStopped = true;
     }
     data.topic = topic;
+    data.cancel = false;
 
     if (data.dom) {
         data.ctx = {};
@@ -104,23 +117,23 @@ BWC.Dispatcher.dispatch = function(topic, data) {
     for (var id in this.listeners) {
         var entity = this.listeners[id];
         if (entity.matchTopic(topic)) {
-            if (entity.getScope()) {
-                entity.getCallback().bind(entity.getScope)(data);
+            if (entity.scope) {
+                entity.callback.bind(entity.scope)(data);
             } else {
-                entity.getCallback()(data);
+                entity.callback(data);
             }
-            if (data && data.isPropagationStopped) {
+            if (data && data.cancel) {
                 break;
             }
         }
     }
 }
 
-BWC.Dispatcher.dispatchDomEvent = function(topic, event) {
+BWC.Dispatcher.dispatchDomEvent = function(topic, event, extra) {
     var ctx = {
         dom: event.currentTarget,
         event: event,
-        isPropagationStopped: event.data.stopPropagation
+        extra: extra
     };
     BWC.Dispatcher.dispatch(topic, ctx);
 }
@@ -130,11 +143,11 @@ BWC.Dispatcher.bind = function(dom) {
     if (!dom) dom = document;
 
     var fnStopPropagation = function(ev) { ev.stopPropagation() };
-    var fnDispatch = function(ev) {
+    var fnDispatch = function(ev, extra) {
         if (ev.data.stopPropagation) {
             ev.stopPropagation();
         }
-        BWC.Dispatcher.dispatchDomEvent(ev.data.topic, ev);
+        BWC.Dispatcher.dispatchDomEvent(ev.data.topic, ev, extra);
     };
 
     $('[data-topic]').each(function() {
@@ -174,68 +187,6 @@ BWC.Dispatcher.bind = function(dom) {
         }
     });
 
-    return;
-
-    // ------------------------------
-
-
-
-    jqTopics.each(function() {
-        var self = this;
-        var $self = $(self);
-        var topicData = $self.data('topic');
-        for (eventName in topicData) {
-            var arrTopics = topicData[eventName];
-            if (typeof arrTopics == 'string') arrTopics = [arrTopics];
-            $self.off(eventName, null, fnDispatch);
-        }
-    });
-
-    var arrEvents = [
-        'blur',
-        'change', 'click',
-        'dblclick',
-        'focus', 'focusin', 'focusout',
-        'hover',
-        'keydown', 'keypress', 'keyup',
-        'mousedown', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover', 'mouseup',
-        'resize',
-        'scroll', 'select',
-        'toggle'
-    ];
-    $('[data-stop-propagation="true"]').each(function() {
-        var self = this;
-        var $self = $(self);
-        for (var idx in arrEvents) {
-            var eventName = arrEvents[idx];
-            $self.off(eventName, null, fnStopPropagation);
-            $self.on(eventName, fnStopPropagation);
-        }
-    });
-
-
-    jqTopics.each(function() {
-        var self = this;
-        var $self = $(self);
-        var topicData = $self.data('topic');
-
-        for (eventName in topicData) {
-            var arrTopics = topicData[eventName];
-            if (typeof arrTopics == 'string') arrTopics = [arrTopics];
-            for (var i in arrTopics) {
-                var topicName = arrTopics[i];
-                $self.on(
-                    eventName,
-                    null,
-                    {
-                        topic: topicName
-                    },
-                    fnDispatch
-                );
-
-            }
-        }
-    });
 
 
 }
