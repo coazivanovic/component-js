@@ -103,7 +103,7 @@ $(function() {
                 timer = setTimeout(function() {
                     $.ajax(options);
                 }, buffer);
-                $dom.data($dom.data('sysTimer_'+ee.topic), timer);
+                $dom.data('sysTimer_'+ee.topic, timer);
             }
         })
     });
