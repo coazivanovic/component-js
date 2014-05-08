@@ -20,12 +20,11 @@ $(function() {
             }
         }
 
-        var hasClass = $target.hasClass(sysToggleClassData.class);
-
         if (typeof sysToggleClassData.parent == "undefined") {
             sysToggleClassData.parent = $dom.data('parent');
         }
         if (sysToggleClassData.parent) {
+            // radio button mode
             var $parent = $(sysToggleClassData.parent);
             if ($parent.length < 1) {
                 throw new SyntaxError('sys.addClass: Invalid parent: '+sysToggleClassData.parent);
@@ -35,12 +34,15 @@ $(function() {
                 $children = $parent.find(sysToggleClassData.children);
             }
             $children.removeClass(sysToggleClassData.class);
-        }
-
-        if (hasClass) {
-            $target.removeClass(sysToggleClassData.class);
-        } else {
             $target.addClass(sysToggleClassData.class);
+        } else {
+            // checkbox mode
+            var hasClass = $target.hasClass(sysToggleClassData.class);
+            if (hasClass) {
+                $target.removeClass(sysToggleClassData.class);
+            } else {
+                $target.addClass(sysToggleClassData.class);
+            }
         }
     });
 
