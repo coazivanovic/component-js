@@ -60,8 +60,13 @@ $(function() {
         });
     }
 
-    function ajaxComplete(bsModalData, ee, $dom, jqXHR, textStatus) {
-
+    function ajaxComplete($block) {
+        if ($block && typeof($block.unblock) == "function") {
+            $block.unblock();
+        }
+        if (typeof $.unblockUI == "function") {
+            $.unblockUI();
+        }
     }
 
 
@@ -75,6 +80,21 @@ $(function() {
         if (!bsModalData.url) {
             throw new SyntaxError('No url');
         }
+
+        var $block = null;
+        var block = bsModalData.block;
+        if (block) {
+            var blockOptions = bsModalData.blockOptions || {};
+            if (block === true && typeof($.unblockUI) == "function") {
+                $.blockUI(blockOptions);
+            } else {
+                $block = $(block);
+                if ($block.length && typeof($block.block) == "function") {
+                    $block.block(blockOptions);
+                }
+            }
+        }
+
         var options = bsModalData.ajax || {};
         options.url = bsModalData.url;
         options.success = function(data, textStatus, jqXHR) {
@@ -84,7 +104,7 @@ $(function() {
             ajaxError(bsModalData, ee, $dom, jqXHR, textStatus, errorThrown);
         }
         options.complete = function(jqXHR, textStatus) {
-            ajaxComplete(bsModalData, ee, $dom, jqXHR, textStatus);
+            ajaxComplete($block);
         }
         $.ajax(options);
     });

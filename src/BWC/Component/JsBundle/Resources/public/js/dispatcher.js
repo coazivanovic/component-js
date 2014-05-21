@@ -16,62 +16,6 @@ BWC.Dispatcher.getDom = function(e) {
     return $dom;
 }
 
-//BWC.Dispatcher.Listener = function(id, callback, scope){
-//    var listener = Object.create({
-//        _id: null,
-//        _topic: null,
-//        _callback: null,
-//        _scope: null,
-//
-//        init: function (id, callback, scope){
-//            if(typeof id == 'undefined') throw new Error('Id of Listener must be defined');
-//            this._setId(id);
-//            this._callback = callback;
-//            this._scope = scope;
-//        },
-//
-//        _setId: function (id){
-//            this._id = id;
-//        }
-//    });
-//
-//    listener.init(id, callback, scope);
-//
-//    this.setTopic = function(topic){
-//        if(typeof topic == 'undefined') throw new Error('Topic must be defined');
-//        listener._topic = topic;
-//        return this;
-//    };
-//
-//    this.getTopic = function(){
-//        return listener._topic;
-//    };
-//
-//    this.getId = function(){
-//        return listener._id;
-//    }
-//
-//    this.getScope = function(){
-//        return listener._scope;
-//    }
-//
-//    this.matchTopic = function(topic){
-//        if(listener._topic == topic) return true;
-//        if(topic.replace(/[^\[\]]/g, '') != ''){
-//            var topic = topic.replace(/[\[\]]/g, '');
-//            if(topic.match(listener._topic)){
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    this.getCallback = function(){
-//        return listener._callback;
-//    }
-//
-//    return this;
-//};
 
 BWC.Dispatcher.addListener  = function(topic, callback, scope) {
     var id = this.listeners.length;

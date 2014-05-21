@@ -28,7 +28,7 @@ $(function() {
     function ajaxError($dom, targetData, jqXHR, textStatus, errorThrown) {
         $dom.trigger('error.bwc.sys.load', {
             result: null,
-            originalEvent: originalEvent,
+            originalEvent: null,
             targetData: targetData,
             jqXHR: jqXHR,
             textStatus: textStatus,
@@ -40,30 +40,41 @@ $(function() {
         if ($block && typeof($block.unblock) == "function") {
             $block.unblock();
         }
+        if (typeof($.unblockUI) == "function") {
+            $.unblockUI();
+        }
     }
 
     BWC.Dispatcher.addListener('sys.load', function(e) {
         var ee = e;
         var $dom = BWC.Dispatcher.getDom(e);
         var sysLoadData = $dom.data('sysLoad');
+        if (!sysLoadData) {
+            sysLoadData = [{}];
+        }
         $(sysLoadData).each(function() {
             var targetData = this;
 
             var url = targetData.url;
             if (!url) {
-                $dom.data('url');
+                targetData.url = $dom.data('url');
             }
-            if (!url) {
+            if (!targetData.url) {
                 throw new SyntaxError('No url');
             }
 
 
+            var $block = null;
             var block = targetData.block;
             if (block) {
-                var $block = $(block);
-                if ($block.length && typeof($block.block) == "function") {
-                    var blockOptions = targetData.blockOptions || {};
-                    $block.block(blockOptions);
+                var blockOptions = targetData.blockOptions || {};
+                if (block == true && typeof($.unblockUI) == "function") {
+                    $.blockUI(blockOptions);
+                } else {
+                    $block = $(block);
+                    if ($block.length && typeof($block.block) == "function") {
+                        $block.block(blockOptions);
+                    }
                 }
             }
 
