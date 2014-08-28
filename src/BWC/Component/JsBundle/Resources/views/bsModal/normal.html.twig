@@ -5,8 +5,10 @@
     <div class="modal-dialog {% block modal_dialog_class %}{% endblock %}" {% block modal_dialog_attributes %}{% endblock %}>
         <div class="modal-content" {% block modal_content_attributes %}{% endblock %}>
             <div class="modal-header" {% block modal_header_attributes %}{% endblock %}>
+                {% block header %}
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true" {% block header_dismiss_button_attributes %}{% endblock %}>&times;</button>
                 <h4 class="modal-title" id="x{{ titleID }}">{% block title %}Default title{% endblock title %}</h4>
+                {% endblock header %}
             </div>
             <div class="modal-body" {% block modal_body_attributes %}{% endblock %}>
                 {% block body %}
