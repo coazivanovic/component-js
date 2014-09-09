@@ -17,7 +17,8 @@ $(function() {
             $form = $form.first();
             var options = sysSubmitData.options || {};
             if (!options.target) {
-                options.target = $form.parent();
+                options.target = $form;
+                options.replaceTarget = true;
             }
             var $target = $(options.target);
             options.success = function(response, statusText, jqXHR, jqForm) {
