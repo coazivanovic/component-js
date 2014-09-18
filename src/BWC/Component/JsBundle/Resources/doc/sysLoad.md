@@ -1,6 +1,9 @@
 sys.load
 ========
 
+Loads specified url, and triggers ```loaded.bwc.sys.load``` event when loaded. Usually used together with
+```sys.result.html``` or ```sys.result.append`` topics.
+
 ``` html
 <div data-id="target1"></div>
 ...
@@ -9,10 +12,9 @@ sys.load
 <button
     data-topic='{ "click": "sys.load" }'
     data-sys-load='[
-        { "target": "[data-id=\"target1\"]", "url": "/url/first", dontBlock: true },
+        { "target": "[data-id=\"target1\"]", "url": "/url/first", "dontBlock": "true", "buffer": 200 },
         { "target": "[data-id=\"target2\"]", "url": "/url/second" }
     ]'
-    data-buffer="10"
 >do it</button
 ```
 

@@ -3,6 +3,14 @@ $(function() {
 
     function ajaxSuccess($dom, targetData, originalEvent, data, textStatus, jqXHR) {
         var result = BWC.Ajax.create(data);
+        $dom.trigger('completed.bwc.sys.load', {
+            result: result,
+            originalEvent: originalEvent,
+            targetData: targetData,
+            jqXHR: jqXHR,
+            textStatus: textStatus,
+            errorThrown: null
+        });
         if (result.success) {
             $dom.trigger('loaded.bwc.sys.load', {
                 result: result,

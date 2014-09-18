@@ -1,7 +1,8 @@
 if (typeof BWC == 'undefined') BWC = {};
 
 BWC.Dispatcher = {
-    listeners: []
+    listeners: [], // id => { id: int, callback: function, scope: object, topic: string }
+    events: {}     // eventName: dom[]
 };
 
 /**
@@ -26,12 +27,6 @@ BWC.Dispatcher.addListener  = function(topic, callback, scope) {
         topic: topic,
         matchTopic: function(topic) {
             if(this.topic == topic) return true;
-            if(topic.replace(/[^\[\]]/g, '') != '') {
-                var topic = topic.replace(/[\[\]]/g, '');
-                if(topic.match(this.topic)){
-                    return true;
-                }
-            }
             return false;
         }
     };
@@ -83,35 +78,26 @@ BWC.Dispatcher.dispatchDomEvent = function(topic, event, extra) {
 }
 
 
-BWC.Dispatcher.bind = function(dom) {
-    if (!dom) dom = document;
-
-    var fnStopPropagation = function(ev) { ev.stopPropagation() };
+BWC.Dispatcher.bind = function() {
     var fnDispatch = function(ev, extra) {
-        if (ev.data.stopPropagation) {
-            ev.stopPropagation();
-        }
+        ev.stopPropagation();
         BWC.Dispatcher.dispatchDomEvent(ev.data.topic, ev, extra);
     };
+
+    BWC.Dispatcher.events = {};
 
     $('[data-topic]').each(function() {
         var self = this;
         var $self = $(self);
         var topicData = $self.data('topic');
 
-        var hasStopPropagation = $self.data('stopPropagation');
-        hasStopPropagation = hasStopPropagation === true || hasStopPropagation == "true";
-
         for (eventName in topicData) {
 
-            if (!hasStopPropagation) {
-                var parents = $self.parents('[data-stop-propagation="true"]');
-                if (parents.length) {
-                    parents.off(eventName);
-                    parents.on(eventName, fnStopPropagation);
-                }
-            }
             $self.off(eventName);
+            if (typeof BWC.Dispatcher.events[eventName] == "undefined") {
+                BWC.Dispatcher.events[eventName] = [];
+            }
+            BWC.Dispatcher.events[eventName].push(self);
 
             var arrTopics = topicData[eventName];
             if (typeof arrTopics == 'string') arrTopics = [arrTopics];
@@ -121,8 +107,7 @@ BWC.Dispatcher.bind = function(dom) {
                     eventName,
                     null,
                     {
-                        topic: topicName,
-                        stopPropagation: hasStopPropagation
+                        topic: topicName
                     },
                     fnDispatch
                 );
@@ -132,5 +117,13 @@ BWC.Dispatcher.bind = function(dom) {
     });
 
 
+    BWC.Dispatcher.trigger = function(eventName, data) {
+        if (typeof BWC.Dispatcher.events[eventName] == "undefined") {
+            return;
+        }
 
+        for (var i in BWC.Dispatcher.events[eventName]) {
+            $(BWC.Dispatcher.events[eventName][i]).trigger(eventName, data);
+        }
+    }
 }

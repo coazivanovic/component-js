@@ -8,7 +8,7 @@ $(function() {
             target = ee.target;
         }
         if (!target) {
-            throw new SyntaxError('sys.result.html: No target');
+            target = $dom;
         }
         var $target = $(target);
         if ($target.length < 1) {
