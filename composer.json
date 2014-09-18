@@ -5,7 +5,7 @@
     "autoload": {
         "psr-0": { "": "src/" }
     }, 
-    "require": {
-        "symfony/symfony": ">=2.2"
+    "suggest": {
+        "symfony/symfony": "For easy inclusion of resources"
     }
 }
