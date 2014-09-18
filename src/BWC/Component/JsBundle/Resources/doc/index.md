@@ -14,3 +14,9 @@ Topic handlers
  * [sysSubmitAjax](sysSubmitAjax.md) - Submits a form trough AJAX with malsup/form
  * [sysTopic](sysTopic.md) - Triggers a specified topic
  * [sysUnblock](sysUnblock.md) - Calls malsup/blockui unblock()
+
+
+Examples
+--------
+
+You can check [examples here](examples/index.md).
