@@ -1,5 +1,24 @@
 $(function() {
 
+    BWC.sysSubmitAjax = {};
+
+    BWC.sysSubmitAjax.setDefaultButton = function(frm, btn) {
+        var $frm = $(frm).first(),
+            $btn = $(btn).first();
+
+        $frm.on('submit', function(e) {
+            var $frm = $(this);
+            if (!$frm.data('bwcSubmit')) {
+                e.preventDefault();
+                e.stopPropagation();
+                setTimeout(function() {
+                    $btn.click();
+                }, 20);
+                return false;
+            }
+        })
+    };
+
     BWC.Dispatcher.addListener('sys.submit.ajax', function(e) {
         var ee = e;
         var $dom = BWC.Dispatcher.getDom(e);
@@ -15,6 +34,9 @@ $(function() {
         }
         if ($form.length) {
             $form = $form.first();
+
+            $form.data('bwcSubmit', true);
+
             var options = sysSubmitData.options || {};
             if (!options.target) {
                 options.target = $form;
