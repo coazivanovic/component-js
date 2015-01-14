@@ -57,9 +57,20 @@ $(function() {
         var ee = e;
         var $dom = BWC.Dispatcher.getDom(e);
         var sysLoadData = $dom.data('sysLoad');
+
         if (!sysLoadData) {
             sysLoadData = [{}];
         }
+
+        if (ee.event.type.indexOf('key') === 0) {
+            var allowedKeys = sysLoadData.allowedKeys || [];
+            var filter = new BWC.Filter(BWC.Keys.defaultBlacklist, allowedKeys);
+
+            if (false == filter.isAllowed(ee.event.keyCode)) {
+                return;
+            }
+        }
+
         $(sysLoadData).each(function() {
             var targetData = this;
 
