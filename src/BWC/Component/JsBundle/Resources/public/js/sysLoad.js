@@ -55,11 +55,22 @@ $(function() {
 
     BWC.Dispatcher.addListener('sys.load', function(e) {
         var ee = e;
+        var originalEvent = ee.event;
         var $dom = BWC.Dispatcher.getDom(e);
         var sysLoadData = $dom.data('sysLoad');
+
         if (!sysLoadData) {
             sysLoadData = [{}];
         }
+
+        var allowedKeys = sysLoadData.allowedKeys || [];
+
+        BWC.Keys.addKeysToWhiteList(allowedKeys, true);
+
+        if (originalEvent.type.indexOf('key') === 0 && BWC.Keys.isBlacklisted(originalEvent.keyCode)) {
+                return true;
+        }
+
         $(sysLoadData).each(function() {
             var targetData = this;
 
